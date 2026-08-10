@@ -32,7 +32,6 @@ export const TemplateEditor = () => {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const currentTemplate = TEMPLATE_OPTIONS.find((t) => t.id === slideData.theme) || TEMPLATE_OPTIONS[0];
   const isSlideLight = currentTemplate.isLight;
-
   const isPlatformDark = platformTheme === 'dark';
 
   return (
@@ -47,13 +46,20 @@ export const TemplateEditor = () => {
           isPlatformDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-sm'
         }`}
       >
-        <div className="flex items-center space-x-4">
-          {/* 왼쪽 상단 엑셈 로고 */}
+        <div className="flex items-center space-x-3">
+          {/* 엑셈 로고 (경로: public/logo/Logo_White.svg) */}
           <img
-            src="/Logo_White.svg"
+            src="/logo/Logo_White.svg"
             alt="EXEM Logo"
             className={`h-6 w-auto transition-all ${!isPlatformDark ? 'invert' : ''}`}
+            onError={(e) => {
+              // 이미지 로드 실패 시 텍스트 뱃지로 대체
+              e.currentTarget.style.display = 'none';
+            }}
           />
+          <div className="bg-[#00e6a5] text-black px-2.5 py-0.5 rounded-md font-black tracking-tighter text-xs">
+            EXEM
+          </div>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded ${isPlatformDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
             Canvas Builder
           </span>
