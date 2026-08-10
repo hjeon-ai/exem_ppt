@@ -18,7 +18,7 @@ const TEMPLATE_OPTIONS = [
 ];
 
 export const TemplateEditor = () => {
-  // 플랫폼 자체 전체 테마 (dark | light)
+  // EXEM 디자인 시스템 기반 테마 관리 (dark | light)
   const [platformTheme, setPlatformTheme] = useState<'dark' | 'light'>('dark');
 
   const [slideData, setSlideData] = useState<SlideData>({
@@ -36,18 +36,22 @@ export const TemplateEditor = () => {
 
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans select-none transition-colors duration-300 ${
-        isPlatformDark ? 'bg-gray-950 text-gray-100' : 'bg-gray-100 text-gray-900'
+      className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
+        isPlatformDark
+          ? 'bg-[#0a0d14] text-slate-100'
+          : 'bg-[#f4f6f8] text-slate-900'
       }`}
     >
-      {/* ===== 상단 헤더 (EXEM 로고 + 테마 토글 버튼) ===== */}
+      {/* ===== EXEM Studio 헤더 ===== */}
       <header
-        className={`border-b px-8 py-4 flex justify-between items-center transition-colors duration-300 ${
-          isPlatformDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-sm'
+        className={`border-b px-8 py-4 flex justify-between items-center backdrop-blur-md transition-colors duration-300 ${
+          isPlatformDark
+            ? 'bg-[#111622]/80 border-slate-800/80'
+            : 'bg-white/80 border-slate-200 shadow-sm'
         }`}
       >
         <div className="flex items-center space-x-3">
-          {/* 엑셈 로고 (경로: public/logo/Logo_White.svg) */}
+          {/* EXEM 브랜드 로고 */}
           <img
             src="/logo/Logo_White.svg"
             alt="EXEM Logo"
@@ -56,78 +60,98 @@ export const TemplateEditor = () => {
               e.currentTarget.style.display = 'none';
             }}
           />
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded ${isPlatformDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
-            Canvas Builder
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#00e6a5]/10 text-[#00e6a5] border border-[#00e6a5]/20">
+            Studio Canvas
           </span>
         </div>
 
-        {/* 라이트/다크 모드 전환 토글 버튼 */}
+        {/* 테마 토글 버튼 (EXEM 디자인 스타일 적용) */}
         <button
           onClick={() => setPlatformTheme(isPlatformDark ? 'light' : 'dark')}
-          className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+          className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg border text-xs font-medium transition-all duration-200 ${
             isPlatformDark
-              ? 'border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-200'
-              : 'border-gray-300 bg-gray-50 hover:bg-gray-200 text-gray-800'
+              ? 'border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-slate-200 hover:border-[#00e6a5]/40'
+              : 'border-slate-300 bg-white hover:bg-slate-50 text-slate-800 shadow-sm'
           }`}
         >
-          <span>{isPlatformDark ? '☀️ 라이트 모드' : '🌙 다크 모드'}</span>
+          <span>{isPlatformDark ? '☀️ Light Mode' : '🌙 Dark Mode'}</span>
         </button>
       </header>
 
+      {/* ===== 메인 컨텐츠 영역 ===== */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 p-8 max-w-[1800px] mx-auto w-full">
-        {/* ===== 왼쪽 패널: 템플릿 선택 & 텍스트 편집 ===== */}
+        {/* ===== 왼쪽 컨트롤 패널 ===== */}
         <div
           className={`lg:col-span-4 border rounded-2xl p-6 space-y-6 h-fit transition-colors duration-300 ${
-            isPlatformDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-sm'
+            isPlatformDark
+              ? 'bg-[#111622] border-slate-800/80 shadow-2xl shadow-black/40'
+              : 'bg-white border-slate-200 shadow-xl shadow-slate-200/50'
           }`}
         >
-          <h2 className="font-semibold text-lg">템플릿 선택</h2>
+          <div>
+            <h2 className="font-bold text-base tracking-tight mb-1">템플릿 선택</h2>
+            <p className={`text-xs ${isPlatformDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              원하는 디자인 슬라이드 스타일을 클릭하세요.
+            </p>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             {TEMPLATE_OPTIONS.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setSlideData((prev) => ({ ...prev, theme: item.id }))}
-                className={`p-3 rounded-xl border text-left transition flex flex-col justify-between h-20 ${
+                className={`p-3.5 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between h-20 relative overflow-hidden ${
                   slideData.theme === item.id
-                    ? 'border-[#00e6a5] ring-2 ring-[#00e6a5]/20 ' + (isPlatformDark ? 'bg-gray-800' : 'bg-emerald-50/50')
+                    ? 'border-[#00e6a5] bg-[#00e6a5]/5 ring-1 ring-[#00e6a5]'
                     : isPlatformDark
-                    ? 'border-gray-800 bg-gray-950 hover:border-gray-700'
-                    : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                    ? 'border-slate-800 bg-[#0d111a] hover:border-slate-700 hover:bg-slate-800/50'
+                    : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100'
                 }`}
               >
-                <span className="font-medium text-xs">{item.name}</span>
-                <span className={`text-[10px] ${isPlatformDark ? 'text-gray-500' : 'text-gray-400'}`}>{item.desc}</span>
+                <span className="font-semibold text-xs">{item.name}</span>
+                <span className={`text-[10px] ${isPlatformDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {item.desc}
+                </span>
               </button>
             ))}
           </div>
 
-          <hr className={isPlatformDark ? 'border-gray-800' : 'border-gray-200'} />
+          <hr className={isPlatformDark ? 'border-slate-800' : 'border-slate-200'} />
 
           <div className="space-y-4">
-            <h3 className={`font-semibold text-sm ${isPlatformDark ? 'text-gray-300' : 'text-gray-700'}`}>콘텐츠 편집</h3>
+            <h3 className={`font-bold text-sm ${isPlatformDark ? 'text-slate-200' : 'text-slate-700'}`}>
+              콘텐츠 편집
+            </h3>
 
             <div>
-              <label className={`block text-xs font-medium mb-1 ${isPlatformDark ? 'text-gray-400' : 'text-gray-600'}`}>메인 제목</label>
+              <label className={`block text-xs font-semibold mb-1.5 ${isPlatformDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                메인 제목
+              </label>
               <textarea
                 rows={2}
                 value={slideData.mainTitle}
                 onChange={(e) => setSlideData({ ...slideData, mainTitle: e.target.value })}
-                className={`w-full border rounded-lg p-3 text-sm focus:border-[#00e6a5] focus:outline-none resize-none transition ${
-                  isPlatformDark ? 'bg-gray-950 border-gray-800 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'
+                className={`w-full border rounded-xl p-3 text-sm focus:border-[#00e6a5] focus:ring-1 focus:ring-[#00e6a5] focus:outline-none resize-none transition-all ${
+                  isPlatformDark
+                    ? 'bg-[#0d111a] border-slate-800 text-slate-100 placeholder-slate-600'
+                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
                 }`}
                 placeholder="제목을 입력하세요"
               />
             </div>
 
             <div>
-              <label className={`block text-xs font-medium mb-1 ${isPlatformDark ? 'text-gray-400' : 'text-gray-600'}`}>부제목 / 서브 타이틀</label>
+              <label className={`block text-xs font-semibold mb-1.5 ${isPlatformDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                부제목 / 서브 타이틀
+              </label>
               <input
                 type="text"
                 value={slideData.subTitle}
                 onChange={(e) => setSlideData({ ...slideData, subTitle: e.target.value })}
-                className={`w-full border rounded-lg p-3 text-sm focus:border-[#00e6a5] focus:outline-none transition ${
-                  isPlatformDark ? 'bg-gray-950 border-gray-800 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'
+                className={`w-full border rounded-xl p-3 text-sm focus:border-[#00e6a5] focus:ring-1 focus:ring-[#00e6a5] focus:outline-none transition-all ${
+                  isPlatformDark
+                    ? 'bg-[#0d111a] border-slate-800 text-slate-100 placeholder-slate-600'
+                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
                 }`}
                 placeholder="부제목을 입력하세요"
               />
@@ -135,24 +159,32 @@ export const TemplateEditor = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={`block text-xs font-medium mb-1 ${isPlatformDark ? 'text-gray-400' : 'text-gray-600'}`}>소속팀</label>
+                <label className={`block text-xs font-semibold mb-1.5 ${isPlatformDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  소속팀
+                </label>
                 <input
                   type="text"
                   value={slideData.department}
                   onChange={(e) => setSlideData({ ...slideData, department: e.target.value })}
-                  className={`w-full border rounded-lg p-3 text-sm focus:border-[#00e6a5] focus:outline-none transition ${
-                    isPlatformDark ? 'bg-gray-950 border-gray-800 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'
+                  className={`w-full border rounded-xl p-3 text-sm focus:border-[#00e6a5] focus:ring-1 focus:ring-[#00e6a5] focus:outline-none transition-all ${
+                    isPlatformDark
+                      ? 'bg-[#0d111a] border-slate-800 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-900'
                   }`}
                 />
               </div>
               <div>
-                <label className={`block text-xs font-medium mb-1 ${isPlatformDark ? 'text-gray-400' : 'text-gray-600'}`}>작성자</label>
+                <label className={`block text-xs font-semibold mb-1.5 ${isPlatformDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  작성자
+                </label>
                 <input
                   type="text"
                   value={slideData.author}
                   onChange={(e) => setSlideData({ ...slideData, author: e.target.value })}
-                  className={`w-full border rounded-lg p-3 text-sm focus:border-[#00e6a5] focus:outline-none transition ${
-                    isPlatformDark ? 'bg-gray-950 border-gray-800 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'
+                  className={`w-full border rounded-xl p-3 text-sm focus:border-[#00e6a5] focus:ring-1 focus:ring-[#00e6a5] focus:outline-none transition-all ${
+                    isPlatformDark
+                      ? 'bg-[#0d111a] border-slate-800 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-900'
                   }`}
                 />
               </div>
@@ -160,23 +192,25 @@ export const TemplateEditor = () => {
           </div>
         </div>
 
-        {/* ===== 오른쪽 패널: 캔버스 실시간 미리보기 ===== */}
+        {/* ===== 오른쪽 캔버스 미리보기 패널 ===== */}
         <div className="lg:col-span-8 flex flex-col justify-start space-y-4">
-          <div className={`flex justify-between items-center text-sm px-1 ${isPlatformDark ? 'text-gray-400' : 'text-gray-600'}`}>
-            <span>실시간 Canvas 미리보기</span>
+          <div className={`flex justify-between items-center text-xs font-medium px-1 ${isPlatformDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <span>실시간 Canvas 미리보기 (16:9)</span>
           </div>
 
           <div
-            className={`w-full flex justify-center items-center p-4 rounded-xl shadow-inner border transition-colors duration-300 ${
-              isPlatformDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+            className={`w-full flex justify-center items-center p-6 rounded-2xl border transition-colors duration-300 ${
+              isPlatformDark
+                ? 'bg-[#111622] border-slate-800/80 shadow-2xl'
+                : 'bg-white border-slate-200 shadow-xl shadow-slate-200/50'
             }`}
           >
             <div
               ref={canvasRef}
-              className="relative w-full aspect-[16/9] bg-cover bg-center overflow-hidden shadow-2xl transition-all duration-300 rounded-md"
+              className="relative w-full aspect-[16/9] bg-cover bg-center overflow-hidden shadow-2xl transition-all duration-300 rounded-lg border border-white/10"
               style={{ backgroundImage: `url(${currentTemplate.bg})` }}
             >
-              {/* 슬라이드 내부 실시간 텍스트 매핑 */}
+              {/* 슬라이드 텍스트 캔버스 매핑 */}
               <div className="absolute left-[7%] top-[25%] right-[20%] text-left space-y-3 pointer-events-none">
                 <h1
                   className="text-3xl lg:text-5xl font-bold tracking-tight break-keep leading-tight"
