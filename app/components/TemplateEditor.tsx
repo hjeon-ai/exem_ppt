@@ -53,13 +53,9 @@ export const TemplateEditor = () => {
             alt="EXEM Logo"
             className={`h-6 w-auto transition-all ${!isPlatformDark ? 'invert' : ''}`}
             onError={(e) => {
-              // 이미지 로드 실패 시 텍스트 뱃지로 대체
               e.currentTarget.style.display = 'none';
             }}
           />
-          <div className="bg-[#00e6a5] text-black px-2.5 py-0.5 rounded-md font-black tracking-tighter text-xs">
-            EXEM
-          </div>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded ${isPlatformDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
             Canvas Builder
           </span>
