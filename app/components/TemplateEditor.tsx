@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface SlideItem {
   id: string;
@@ -43,6 +45,7 @@ const COLOR_PALETTE = [
 
 export const TemplateEditor = () => {
   const [platformTheme, setPlatformTheme] = useState<'dark' | 'light'>('light');
+  const [isExporting, setIsExporting] = useState<boolean>(false);
 
   // 전체 슬라이드 공통 글로벌 스타일 Config
   const [styleConfig, setStyleConfig] = useState<TemplateConfig>({
@@ -111,7 +114,6 @@ export const TemplateEditor = () => {
       author: activeSlide.author,
     };
 
-    // 엔딩 슬라이드 직전에 내지 삽입
     const endingIndex = slides.findIndex((s) => s.type === 'ending');
     const updated = [...slides];
     if (endingIndex !== -1) {
@@ -133,6 +135,40 @@ export const TemplateEditor = () => {
     setSlides(updated);
     if (activeSlideId === id) {
       setActiveSlideId(updated[0].id);
+    }
+  };
+
+  // ===== PDF 추출 기능 구현 =====
+  const handleExportPDF = async () => {
+    if (!canvasRef.current || isExporting) return;
+
+    try {
+      setIsExporting(true);
+
+      const canvasElement = canvasRef.current;
+      // html2canvas로 DOM 요소 캡처 (고화질 스케일 설정)
+      const canvas = await html2canvas(canvasElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // 16:9 슬라이드 비율에 맞는 PDF 생성 (가로 방향 landscape)
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`EXEM_Studio_Presentation_${Date.now()}.pdf`);
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      alert('PDF 추출 도중 오류가 발생했습니다.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -173,16 +209,34 @@ export const TemplateEditor = () => {
           </span>
         </div>
 
-        <button
-          onClick={() => setPlatformTheme(isPlatformDark ? 'light' : 'dark')}
-          className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg border text-xs font-medium transition-all duration-200 ${
-            isPlatformDark
-              ? 'border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-slate-200'
-              : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-800 shadow-sm'
-          }`}
-        >
-          <span>{isPlatformDark ? '☀️ Light' : '🌙 Dark'}</span>
-        </button>
+        {/* 상단 우측 버튼 세트 (다크/라이트 모드 + PDF 추출) */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setPlatformTheme(isPlatformDark ? 'light' : 'dark')}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-200 ${
+              isPlatformDark
+                ? 'border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-slate-200'
+                : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-800 shadow-sm'
+            }`}
+          >
+            <span>{isPlatformDark ? '☀️ Light' : '🌙 Dark'}</span>
+          </button>
+
+          {/* PDF 추출 버튼 */}
+          <button
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95 ${
+              isExporting
+                ? 'opacity-50 cursor-not-allowed bg-slate-500 text-white'
+                : isPlatformDark
+                ? 'bg-[#00e6a5] hover:bg-[#00c990] text-slate-950'
+                : 'bg-slate-900 hover:bg-slate-800 text-white'
+            }`}
+          >
+            <span>{isExporting ? '⏳ 추출 중...' : '📥 PDF 추출'}</span>
+          </button>
+        </div>
       </header>
 
       {/* ===== 메인 레이아웃 (좌측 사이드바 - 중앙 캔버스 - 우측 사이드바) ===== */}
@@ -324,7 +378,7 @@ export const TemplateEditor = () => {
             <span>실시간 Canvas 미리보기 — <strong className={accentTextClass}>{activeSlide.title}</strong></span>
           </div>
 
-          {/* 캔버스 화면 */}
+          {/* 캔버스 화면 (PDF 추출 대상) */}
           <div
             className={`w-full flex justify-center items-center p-4 rounded-2xl border transition-colors duration-300 ${
               isPlatformDark
@@ -371,7 +425,7 @@ export const TemplateEditor = () => {
             </div>
           </div>
 
-          {/* 하단 슬라이드 네비게이션 탭 (메인, 내지, 엔딩 + 추가 버튼) */}
+          {/* 하단 슬라이드 네비게이션 탭 */}
           <div
             className={`p-2.5 rounded-xl border flex items-center space-x-2 overflow-x-auto transition-colors ${
               isPlatformDark ? 'bg-[#111622] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -397,7 +451,6 @@ export const TemplateEditor = () => {
                 >
                   <span>{slide.title}</span>
                   
-                  {/* 삭제 버튼 (내지 추가건 삭제 가능) */}
                   {slides.length > 1 && (
                     <button
                       onClick={(e) => handleDeleteSlide(e, slide.id)}
